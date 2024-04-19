@@ -14,12 +14,13 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegisterImport } from './routes/register'
+import { Route as PostsImport } from './routes/posts'
 import { Route as LoginImport } from './routes/login'
+import { Route as IndexImport } from './routes/index'
 
 // Create Virtual Routes
 
 const AboutLazyImport = createFileRoute('/about')()
-const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
 
@@ -33,26 +34,35 @@ const RegisterRoute = RegisterImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PostsRoute = PostsImport.update({
+  path: '/posts',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LoginRoute = LoginImport.update({
   path: '/login',
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
-      preLoaderRoute: typeof IndexLazyImport
+      preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
     '/login': {
       preLoaderRoute: typeof LoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/posts': {
+      preLoaderRoute: typeof PostsImport
       parentRoute: typeof rootRoute
     }
     '/register': {
@@ -69,8 +79,9 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren([
-  IndexLazyRoute,
+  IndexRoute,
   LoginRoute,
+  PostsRoute,
   RegisterRoute,
   AboutLazyRoute,
 ])

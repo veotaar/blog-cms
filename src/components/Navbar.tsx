@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className={cn('m-2 mx-auto flex max-w-screen-lg gap-4 rounded-xl bg-muted p-2 text-foreground')}>
+    <nav className={cn('m-2 mx-auto flex max-w-screen-lg gap-4 rounded-xl bg-accent p-2 text-foreground')}>
       <Link to="/" className="mr-auto [&.active]:font-bold">
         Home
       </Link>

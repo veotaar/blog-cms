@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 import { loginWithUsernameAndPassword } from '@/api/login';
+import { Link } from '@tanstack/react-router';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/lib/auth';
@@ -33,13 +34,13 @@ const LoginForm = () => {
   } = useMutation({
     mutationFn: loginWithUsernameAndPassword,
     onSuccess: (data) => {
-      navigate({ to: '/' });
       const token = data.data.jwt?.token;
       const user = data.data.user?.username;
       if (token && user) {
         setToken(token);
         setUser(user);
       }
+      setTimeout(() => navigate({ to: '/' }), 0);
     },
     onError: (error) => {
       console.error(error);
@@ -53,7 +54,14 @@ const LoginForm = () => {
   };
 
   if (isAuthenticated) {
-    return <p className="text-center">You are already logged in</p>;
+    return (
+      <div className="text-center">
+        <p>You are logged in.</p>
+        <Link to="/" className="underline underline-offset-2">
+          Go to home page.
+        </Link>
+      </div>
+    );
   }
 
   return (
