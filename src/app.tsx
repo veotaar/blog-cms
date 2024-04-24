@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './lib/auth';
 import './index.css';
+import { ThemeProvider } from './components/ThemeProvider';
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
@@ -43,7 +44,9 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <InnerApp />
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <InnerApp />
+        </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

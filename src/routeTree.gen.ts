@@ -17,6 +17,8 @@ import { Route as RegisterImport } from './routes/register'
 import { Route as PostsImport } from './routes/posts'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
+import { Route as PostsPostIdImport } from './routes/posts_.$postId'
+import { Route as PostsPostIdEditImport } from './routes/posts_.$postId_.edit'
 
 // Create Virtual Routes
 
@@ -49,6 +51,16 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const PostsPostIdRoute = PostsPostIdImport.update({
+  path: '/posts/$postId',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PostsPostIdEditRoute = PostsPostIdEditImport.update({
+  path: '/posts/$postId/edit',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -73,6 +85,14 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
+    '/posts/$postId': {
+      preLoaderRoute: typeof PostsPostIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/posts/$postId/edit': {
+      preLoaderRoute: typeof PostsPostIdEditImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +104,8 @@ export const routeTree = rootRoute.addChildren([
   PostsRoute,
   RegisterRoute,
   AboutLazyRoute,
+  PostsPostIdRoute,
+  PostsPostIdEditRoute,
 ])
 
 /* prettier-ignore-end */

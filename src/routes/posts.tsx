@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useLoaderData } from '@tanstack/react-router';
+import { Outlet, createFileRoute, redirect, useLoaderData } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
 import Paginator from '@/components/Paginator';
 import { z } from 'zod';
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/posts')({
     }
   },
   loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: ({ deps: { page }, context }) => getArticles(page, context.auth.token as string),
+  loader: ({ deps: { page }, context }) => getArticles(page as number, context.auth.token as string),
 });
 
 function Posts() {
@@ -49,7 +49,8 @@ function Posts() {
   return (
     <div className="mx-auto max-w-screen-lg overflow-hidden text-ellipsis whitespace-nowrap bg-background p-2">
       <ArticleList data={loaderData.data} />
-      <Paginator currentPage={page} totalPages={loaderData.data.totalPages} pagesAroundCurrent={2} />
+      <Paginator currentPage={page as number} totalPages={loaderData.data.totalPages} pagesAroundCurrent={2} />
+      <Outlet />
     </div>
   );
 }
