@@ -17,6 +17,7 @@ import { Route as RegisterImport } from './routes/register'
 import { Route as PostsImport } from './routes/posts'
 import { Route as LoginImport } from './routes/login'
 import { Route as IndexImport } from './routes/index'
+import { Route as PostsNewImport } from './routes/posts_.new'
 import { Route as PostsPostIdImport } from './routes/posts_.$postId'
 import { Route as PostsPostIdEditImport } from './routes/posts_.$postId_.edit'
 
@@ -48,6 +49,11 @@ const LoginRoute = LoginImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PostsNewRoute = PostsNewImport.update({
+  path: '/posts/new',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -89,6 +95,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdImport
       parentRoute: typeof rootRoute
     }
+    '/posts/new': {
+      preLoaderRoute: typeof PostsNewImport
+      parentRoute: typeof rootRoute
+    }
     '/posts/$postId/edit': {
       preLoaderRoute: typeof PostsPostIdEditImport
       parentRoute: typeof rootRoute
@@ -105,6 +115,7 @@ export const routeTree = rootRoute.addChildren([
   RegisterRoute,
   AboutLazyRoute,
   PostsPostIdRoute,
+  PostsNewRoute,
   PostsPostIdEditRoute,
 ])
 

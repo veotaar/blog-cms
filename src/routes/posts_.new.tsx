@@ -1,12 +1,11 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
-import { getArticle } from '@/api/getArticle';
+import { createArticle } from '@/api/createArticle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { updateArticle } from '@/api/updateArticle';
 import CodeMirror, { ReactCodeMirrorRef, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
@@ -18,8 +17,8 @@ import { Switch } from '@/components/ui/switch';
 import { defaultHighlightStyle, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 
-export const Route = createFileRoute('/posts/$postId/edit')({
-  component: EditComponent,
+export const Route = createFileRoute('/posts/new')({
+  component: NewArticleComponent,
   beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated) {
       throw redirect({
@@ -30,36 +29,29 @@ export const Route = createFileRoute('/posts/$postId/edit')({
       });
     }
   },
-  loader: ({ params, context }) => getArticle(params.postId, context.auth.token as string),
 });
 
-function EditComponent() {
-  const { postId } = Route.useParams();
+function NewArticleComponent() {
   const refs = useRef<ReactCodeMirrorRef>({});
-  const loaderData = Route.useLoaderData();
-  const { title, content, published } = loaderData.data.post;
 
   const { isAuthenticated, token } = useAuth();
 
   const [markdownContent, setMarkdownContent] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [postTitle, setPostTitle] = useState('');
-  const [unsaved, setUnsaved] = useState(false);
+  const [isCreated, setIsCreated] = useState(false);
+  const [newArticleId, setNewArticleId] = useState<null | string>(null);
 
   const { mutate: articleMutate, isPending } = useMutation({
-    mutationFn: updateArticle,
-    onSuccess: (_data) => setUnsaved(false),
+    mutationFn: createArticle,
+    onSuccess: (data) => {
+      setIsCreated(true);
+      setNewArticleId(data.data.post?.id as string);
+    },
     onError: (error) => {
       console.error(error);
     },
   });
-
-  useEffect(() => {
-    setMarkdownContent(content);
-    setPostTitle(title);
-    setIsPublished(published);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleUpdate = () => {
     // articleMutate(postId, { title: postTitle, published: isPublished, content: markdownContent }, token as string);
@@ -68,23 +60,7 @@ function EditComponent() {
       published: isPublished,
       token: token as string,
       content: markdownContent,
-      postId: postId,
     });
-  };
-
-  const handleMarkdownChange = (val: string) => {
-    setMarkdownContent(val);
-    setUnsaved(true);
-  };
-
-  const handleTitleChange = (val: string) => {
-    setPostTitle(val);
-    setUnsaved(true);
-  };
-
-  const handlePublishedChange = (val: boolean) => {
-    setIsPublished(val);
-    setUnsaved(true);
   };
 
   // const handleChange = useCallback((val, viewUpdate) => {
@@ -94,22 +70,31 @@ function EditComponent() {
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-screen-lg bg-background p-2">
-        <h3>Login to view posts</h3>
+        <h3>Login to view this page</h3>
       </div>
     );
   }
 
-  if (!loaderData) {
-    return <p>loading...</p>;
+  if (isCreated) {
+    return (
+      <div>
+        <p>Article successfully created!</p>
+        {newArticleId && (
+          <Link to="/posts/$postId" params={{ postId: newArticleId }}>
+            Go to the article
+          </Link>
+        )}
+      </div>
+    );
   }
 
   return (
     <>
       <div className="flex gap-2">
-        <Input value={postTitle} onChange={(e) => handleTitleChange(e.target.value)} />
-        <Switch checked={isPublished} onCheckedChange={(checked) => handlePublishedChange(checked)} />
-        <Button disabled={isPending || !unsaved} type="button" onClick={handleUpdate}>
-          Save Changes {unsaved ? '*' : ''}
+        <Input value={postTitle} onChange={(e) => setPostTitle(e.target.value)} />
+        <Switch checked={isPublished} onCheckedChange={(checked) => setIsPublished(checked)} />
+        <Button disabled={isPending} type="button" onClick={handleUpdate}>
+          Create Article
         </Button>
       </div>
       <div className="flex min-w-full justify-center gap-2">
@@ -134,7 +119,8 @@ function EditComponent() {
             ]}
             theme={vscodeDark}
             minHeight="calc(100svh - 5rem)"
-            onChange={(val, _view) => handleMarkdownChange(val)}
+            maxWidth="48vw"
+            onChange={(val, _view) => setMarkdownContent(val)}
           />
         </div>
         <div className="mx-auto w-[48vw] border p-4">
