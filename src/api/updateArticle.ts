@@ -1,4 +1,5 @@
 import { axios } from './axios.ts';
+import { ArticleResponse } from './getArticle.ts';
 
 export type articleUpdate = {
   title: string;
@@ -8,18 +9,32 @@ export type articleUpdate = {
   token: string;
 };
 
-export type updateResponse = {
-  status: 'success' | 'fail' | 'error';
-  data: {
-    post?: {
-      id: string;
-      path: string;
-    };
-    message?: string;
-  };
-};
+// export type updateResponse = {
+//   status: 'success' | 'fail' | 'error';
+//   data: {
+//     post?: {
+//       id: string;
+//       path: string;
+//       article: {
+//         author: {
+//           username: string;
+//           id: string;
+//         };
+//         title: string;
+//         content: string;
+//         commentCount: number;
+//         // comments: [];
+//         published: boolean;
+//         createdAt: string;
+//         updatedAt: string;
+//         id: string;
+//       };
+//     };
+//     message?: string;
+//   };
+// };
 
-export const updateArticle = async (article: articleUpdate): Promise<updateResponse> => {
+export const updateArticle = async (article: articleUpdate): Promise<ArticleResponse> => {
   const response = await axios.put(
     `/posts/${article.postId}`,
     { title: article.title, content: article.content, published: article.published },

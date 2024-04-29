@@ -1,11 +1,11 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
-import { createArticle } from '@/api/createArticle';
+// import { createArticle } from '@/api/createArticle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+// import { useMutation } from '@tanstack/react-query';
 import CodeMirror, { ReactCodeMirrorRef, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { defaultHighlightStyle, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
+import { useCreateArticleMutation } from '@/api/queryOptions';
 
 export const Route = createFileRoute('/posts/new')({
   component: NewArticleComponent,
@@ -34,33 +35,40 @@ export const Route = createFileRoute('/posts/new')({
 function NewArticleComponent() {
   const refs = useRef<ReactCodeMirrorRef>({});
 
+  const queryClient = Route.useRouteContext({ select: (context) => context.queryClient });
+
   const { isAuthenticated, token } = useAuth();
 
   const [markdownContent, setMarkdownContent] = useState('');
   const [isPublished, setIsPublished] = useState(false);
   const [postTitle, setPostTitle] = useState('');
-  const [isCreated, setIsCreated] = useState(false);
   const [newArticleId, setNewArticleId] = useState<null | string>(null);
 
-  const { mutate: articleMutate, isPending } = useMutation({
-    mutationFn: createArticle,
-    onSuccess: (data) => {
-      setIsCreated(true);
-      setNewArticleId(data.data.post?.id as string);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
+  // const { mutate: articleMutate, isPending } = useMutation({
+  //   mutationFn: createArticle,
+  //   onSuccess: (data) => {
+  //     setIsCreated(true);
+  //     setNewArticleId(data.data.post?.id as string);
+  //   },
+  //   onError: (error) => {
+  //     console.error(error);
+  //   },
+  // });
 
-  const handleUpdate = () => {
+  const createArticleMutation = useCreateArticleMutation();
+
+  const handleUpdate = async () => {
     // articleMutate(postId, { title: postTitle, published: isPublished, content: markdownContent }, token as string);
-    articleMutate({
+    const created = await createArticleMutation.mutateAsync({
       title: postTitle,
       published: isPublished,
       token: token as string,
       content: markdownContent,
     });
+
+    await queryClient.refetchQueries({ queryKey: ['articles', { page: 1 }] });
+
+    setNewArticleId(created.data.post.id);
   };
 
   // const handleChange = useCallback((val, viewUpdate) => {
@@ -75,12 +83,12 @@ function NewArticleComponent() {
     );
   }
 
-  if (isCreated) {
+  if (createArticleMutation.status === 'success') {
     return (
       <div>
         <p>Article successfully created!</p>
         {newArticleId && (
-          <Link to="/posts/$postId" params={{ postId: newArticleId }}>
+          <Link to="/posts/$postId" search={{ page: 1 }} params={{ postId: newArticleId }}>
             Go to the article
           </Link>
         )}
@@ -93,7 +101,7 @@ function NewArticleComponent() {
       <div className="flex gap-2">
         <Input value={postTitle} onChange={(e) => setPostTitle(e.target.value)} />
         <Switch checked={isPublished} onCheckedChange={(checked) => setIsPublished(checked)} />
-        <Button disabled={isPending} type="button" onClick={handleUpdate}>
+        <Button disabled={createArticleMutation.status === 'pending'} type="button" onClick={handleUpdate}>
           Create Article
         </Button>
       </div>

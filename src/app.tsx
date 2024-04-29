@@ -9,7 +9,7 @@ import { ThemeProvider } from './components/ThemeProvider';
 // Import the generated route tree
 import { routeTree } from './routeTree.gen';
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 // Create a new router instance
 const router = createRouter({
@@ -19,8 +19,8 @@ const router = createRouter({
     queryClient,
   },
   defaultPreload: 'intent',
-  defaultPreloadDelay: 150,
-  defaultPreloadStaleTime: 30_000,
+  defaultPreloadDelay: 100,
+  defaultPreloadStaleTime: 0,
 });
 
 // Register the router instance for type safety

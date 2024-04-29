@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { cn } from '../lib/utils';
 import { useAuth } from '@/lib/auth';
 import { ModeToggle } from './ModeToggle';
+import { queryClient } from '@/app';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, setUser, setToken } = useAuth();
@@ -10,6 +11,7 @@ const Navbar: React.FC = () => {
   const handleLogout = () => {
     setUser(null);
     setToken(null);
+    queryClient.clear();
   };
 
   // className={cn('m-2 mx-auto flex max-w-screen-lg justify-center gap-4 rounded-xl bg-accent p-2 text-foreground')}

@@ -2,11 +2,12 @@ import { createFileRoute, redirect, useLoaderData } from '@tanstack/react-router
 import { useAuth } from '../lib/auth';
 import Paginator from '@/components/Paginator';
 import { z } from 'zod';
-import { getArticles } from '@/api/getArticles';
+// import { getArticles } from '@/api/getArticles';
 import ArticleList from '@/components/ArticleList';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '../lib/utils';
 import { Link } from '@tanstack/react-router';
+import { articlesQueryOptions } from '@/api/queryOptions';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -26,7 +27,9 @@ export const Route = createFileRoute('/posts')({
     }
   },
   loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: ({ deps: { page }, context }) => getArticles(page as number, context.auth.token as string),
+  // loader: ({ deps: { page }, context }) => getArticles(page as number, context.auth.token as string),
+  loader: ({ deps: { page }, context }) =>
+    context.queryClient.ensureQueryData(articlesQueryOptions(page, context.auth.token as string)),
 });
 
 function Posts() {
