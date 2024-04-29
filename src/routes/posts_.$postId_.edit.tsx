@@ -1,12 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
-// import { getArticle } from '@/api/getArticle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { useEffect, useState } from 'react';
-// import { useMutation } from '@tanstack/react-query';
-// import { updateArticle } from '@/api/updateArticle';
 import CodeMirror, { ReactCodeMirrorRef, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
@@ -38,7 +35,6 @@ export const Route = createFileRoute('/posts/$postId/edit')({
       });
     }
   },
-  // loader: ({ params, context }) => getArticle(params.postId, context.auth.token as string),
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string)),
 });
@@ -61,14 +57,6 @@ function EditComponent() {
 
   const updateArticleMutation = useUpdateArticleMutation(postId);
 
-  // const { mutate: articleMutate, isPending } = useMutation({
-  //   mutationFn: updateArticle,
-  //   onSuccess: (_data) => setUnsaved(false),
-  //   onError: (error) => {
-  //     console.error(error);
-  //   },
-  // });
-
   useEffect(() => {
     setMarkdownContent(content);
     setPostTitle(title);
@@ -77,7 +65,6 @@ function EditComponent() {
   }, []);
 
   const handleUpdate = async () => {
-    // articleMutate(postId, { title: postTitle, published: isPublished, content: markdownContent }, token as string);
     await updateArticleMutation.mutateAsync({
       title: postTitle,
       published: isPublished,
@@ -102,10 +89,6 @@ function EditComponent() {
     setIsPublished(val);
     setUnsaved(true);
   };
-
-  // const handleChange = useCallback((val, viewUpdate) => {
-  //   setMarkdownContent(val);
-  // }, []);
 
   if (!isAuthenticated) {
     return (

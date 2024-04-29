@@ -80,16 +80,20 @@ const Paginator = ({ currentPage, totalPages, pagesAroundCurrent }: PaginatorPro
           </PaginationItem>
         )}
 
-        <PaginationItem>
-          <Link
-            to="/posts"
-            search={{ page: totalPages }}
-            className={cn(buttonVariants({ variant: currentPage === totalPages ? 'outline' : 'ghost', size: 'icon' }))}
-            aria-current={currentPage === totalPages ? 'page' : undefined}
-          >
-            {totalPages}
-          </Link>
-        </PaginationItem>
+        {totalPages !== 1 && (
+          <PaginationItem>
+            <Link
+              to="/posts"
+              search={{ page: totalPages }}
+              className={cn(
+                buttonVariants({ variant: currentPage === totalPages ? 'outline' : 'ghost', size: 'icon' }),
+              )}
+              aria-current={currentPage === totalPages ? 'page' : undefined}
+            >
+              {totalPages}
+            </Link>
+          </PaginationItem>
+        )}
 
         <PaginationItem>
           {currentPage === totalPages ? (

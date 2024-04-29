@@ -3,6 +3,7 @@ import { getArticle } from './getArticle';
 import { getArticles } from './getArticles';
 import { createArticle } from './createArticle';
 import { updateArticle } from './updateArticle';
+import { deleteArticle } from './deleteArticle';
 import { queryClient } from '@/app';
 
 export const articleQueryOptions = (postId: string, token: string) => {
@@ -39,5 +40,12 @@ export const useUpdateArticleMutation = (postId: string) => {
       queryClient.setQueryData(['article', { id: variables.postId }], data);
     },
     gcTime: 1000 * 10,
+  });
+};
+
+export const useDeleteArticleMutation = (postId: string) => {
+  return useMutation({
+    mutationKey: ['article', 'delete', postId],
+    mutationFn: deleteArticle,
   });
 };

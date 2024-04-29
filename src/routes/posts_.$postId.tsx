@@ -1,6 +1,5 @@
 import { createFileRoute, redirect, useLoaderData } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
-// import { getArticle } from '@/api/getArticle';
 import { Link } from '@tanstack/react-router';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -9,6 +8,11 @@ import { buttonVariants } from '@/components/ui/button';
 import { articleQueryOptions } from '@/api/queryOptions';
 import { z } from 'zod';
 import { cn } from '../lib/utils';
+import DeleteButton from '@/components/DeleteButton';
+import { toast } from 'sonner';
+import { useDeleteArticleMutation } from '@/api/queryOptions';
+import { useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -27,22 +31,47 @@ export const Route = createFileRoute('/posts/$postId')({
       });
     }
   },
-  // loader: ({ params, context }) => getArticle(params.postId, context.auth.token as string),
   loader: ({ params, context }) =>
     context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string)),
 });
 
-// const postsRouteApi = getRouteApi('/posts');
-
 function Post() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const { page } = Route.useSearch();
 
   const loaderData = useLoaderData({ from: '/posts/$postId' });
+  const navigate = useNavigate({ from: '/posts/$postId' });
+
+  const queryClient = useQueryClient();
 
   const { title, author, content } = loaderData.data.post;
 
   const { postId } = Route.useParams();
+
+  const deleteArticleMutation = useDeleteArticleMutation(postId);
+
+  const handleDelete = async () => {
+    try {
+      await deleteArticleMutation.mutateAsync(
+        {
+          postId: postId,
+          token: token as string,
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['articles'] });
+            queryClient.invalidateQueries({ queryKey: ['article'] });
+            queryClient.clear();
+          },
+        },
+      );
+
+      navigate({ to: '/' });
+      toast('article has been deleted');
+    } catch {
+      toast('there was a problem');
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -67,6 +96,7 @@ function Post() {
           <ChevronLeft className="h-4 w-4" />
           <span>Go back to posts</span>
         </Link>
+        <DeleteButton deleteFn={handleDelete} />
         <Link
           className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
           to="/posts/$postId/edit"

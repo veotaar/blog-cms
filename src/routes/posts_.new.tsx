@@ -1,11 +1,9 @@
 import { Link, createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
-// import { createArticle } from '@/api/createArticle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { useState } from 'react';
-// import { useMutation } from '@tanstack/react-query';
 import CodeMirror, { ReactCodeMirrorRef, EditorView } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
@@ -44,21 +42,9 @@ function NewArticleComponent() {
   const [postTitle, setPostTitle] = useState('');
   const [newArticleId, setNewArticleId] = useState<null | string>(null);
 
-  // const { mutate: articleMutate, isPending } = useMutation({
-  //   mutationFn: createArticle,
-  //   onSuccess: (data) => {
-  //     setIsCreated(true);
-  //     setNewArticleId(data.data.post?.id as string);
-  //   },
-  //   onError: (error) => {
-  //     console.error(error);
-  //   },
-  // });
-
   const createArticleMutation = useCreateArticleMutation();
 
   const handleUpdate = async () => {
-    // articleMutate(postId, { title: postTitle, published: isPublished, content: markdownContent }, token as string);
     const created = await createArticleMutation.mutateAsync({
       title: postTitle,
       published: isPublished,
@@ -70,10 +56,6 @@ function NewArticleComponent() {
 
     setNewArticleId(created.data.post.id);
   };
-
-  // const handleChange = useCallback((val, viewUpdate) => {
-  //   setMarkdownContent(val);
-  // }, []);
 
   if (!isAuthenticated) {
     return (

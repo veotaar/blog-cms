@@ -4,6 +4,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import Navbar from '../components/Navbar';
 import { type AuthContext } from '@/lib/auth';
 import { type QueryClient } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
 
 interface MyRouterContext {
   auth: AuthContext;
@@ -17,6 +18,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       <Outlet />
       <TanStackRouterDevtools />
       <ReactQueryDevtools />
+      <Toaster />
     </>
   ),
 });
