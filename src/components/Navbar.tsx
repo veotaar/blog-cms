@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router';
 import { cn } from '../lib/utils';
 import { useAuth } from '@/lib/auth';
 import { ModeToggle } from './ModeToggle';
-import { queryClient } from '@/app';
+import { queryClient } from '@/api/queryOptions';
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, setUser, setToken } = useAuth();

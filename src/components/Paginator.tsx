@@ -1,7 +1,8 @@
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem } from '@/components/ui/pagination';
 import { Link } from '@tanstack/react-router';
 import { cn } from '@/lib/utils';
-import { buttonVariants } from '@/components/ui/button';
+// import { buttonVariants } from '@/components/ui/button';
+import buttonVariants from './ui/buttonVariants';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 type PaginatorProps = {

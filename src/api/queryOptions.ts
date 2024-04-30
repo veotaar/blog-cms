@@ -1,10 +1,11 @@
-import { queryOptions, useMutation } from '@tanstack/react-query';
+import { queryOptions, useMutation, QueryClient } from '@tanstack/react-query';
 import { getArticle } from './getArticle';
 import { getArticles } from './getArticles';
 import { createArticle } from './createArticle';
 import { updateArticle } from './updateArticle';
 import { deleteArticle } from './deleteArticle';
-import { queryClient } from '@/app';
+
+export const queryClient = new QueryClient();
 
 export const articleQueryOptions = (postId: string, token: string) => {
   return queryOptions({
