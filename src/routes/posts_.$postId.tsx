@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useDeleteArticleMutation } from '@/api/queryOptions';
 import { useNavigate } from '@tanstack/react-router';
 import CommentForm from '@/components/CommentForm';
+import Comment from '@/components/Comment';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -35,13 +36,6 @@ export const Route = createFileRoute('/posts/$postId')({
   loader: async ({ params, context }) => {
     return await context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string));
   },
-  // shouldReload: ({ params, context }) => {
-  //   const { queryClient } = context;
-  //   const queryState = queryClient.getQueryState(['article', { id: params.postId }]);
-  //   console.log(`should reload: ${queryState?.isInvalidated}`);
-  //   return queryState?.isInvalidated;
-  // },
-  // shouldReload: true,
 });
 
 function Post() {
@@ -135,10 +129,13 @@ function Post() {
       >
         {commentCount > 0
           ? comments.map((comment) => (
-              <div key={comment.id} className="rounded-md border border-violet-300 p-2">
-                <p className="italic">{comment.author} says:</p>
-                <p>{comment.content}</p>
-              </div>
+              <Comment
+                id={comment.id}
+                author={comment.author}
+                content={comment.content}
+                postId={comment.parent}
+                page={page}
+              />
             ))
           : null}
       </div>

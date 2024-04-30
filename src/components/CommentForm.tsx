@@ -10,14 +10,17 @@ import { toast } from 'sonner';
 import { useCreateCommentMutation } from '@/api/queryOptions';
 
 const FormSchema = z.object({
-  author: z.string(),
+  author: z
+    .string()
+    .min(3, { message: 'Name must be at least 3 characters.' })
+    .max(32, { message: 'Name must not be longer than 32 characters.' }),
   comment: z
     .string()
     .min(10, {
-      message: 'Bio must be at least 10 characters.',
+      message: 'Comment must be at least 10 characters.',
     })
-    .max(255, {
-      message: 'Bio must not be longer than 30 characters.',
+    .max(400, {
+      message: 'Comment must not be longer than 400 characters.',
     }),
 });
 
