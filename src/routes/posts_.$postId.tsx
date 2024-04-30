@@ -13,6 +13,7 @@ import DeleteButton from '@/components/DeleteButton';
 import { toast } from 'sonner';
 import { useDeleteArticleMutation } from '@/api/queryOptions';
 import { useNavigate } from '@tanstack/react-router';
+import CommentForm from '@/components/CommentForm';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -34,6 +35,13 @@ export const Route = createFileRoute('/posts/$postId')({
   loader: async ({ params, context }) => {
     return await context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string));
   },
+  // shouldReload: ({ params, context }) => {
+  //   const { queryClient } = context;
+  //   const queryState = queryClient.getQueryState(['article', { id: params.postId }]);
+  //   console.log(`should reload: ${queryState?.isInvalidated}`);
+  //   return queryState?.isInvalidated;
+  // },
+  // shouldReload: true,
 });
 
 function Post() {
@@ -112,6 +120,13 @@ function Post() {
         <Markdown remarkPlugins={[remarkGfm]} className="prose dark:prose-invert">
           {content}
         </Markdown>
+      </div>
+      <div
+        className={cn(
+          'mx-auto flex max-w-screen-lg flex-col gap-2 overflow-hidden text-ellipsis border bg-background p-2',
+        )}
+      >
+        <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
       </div>
       <div
         className={cn(

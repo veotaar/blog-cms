@@ -4,6 +4,8 @@ import { getArticles } from './getArticles';
 import { createArticle } from './createArticle';
 import { updateArticle } from './updateArticle';
 import { deleteArticle } from './deleteArticle';
+import { createComment } from './createComment';
+import { useRouter } from '@tanstack/react-router';
 
 export const queryClient = new QueryClient();
 
@@ -34,7 +36,7 @@ export const useCreateArticleMutation = () => {
 
 export const useUpdateArticleMutation = (postId: string) => {
   return useMutation({
-    mutationKey: ['article', 'update', postId],
+    mutationKey: ['article', { id: postId }, 'update'],
     mutationFn: updateArticle,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
@@ -46,7 +48,21 @@ export const useUpdateArticleMutation = (postId: string) => {
 
 export const useDeleteArticleMutation = (postId: string) => {
   return useMutation({
-    mutationKey: ['article', 'delete', postId],
+    mutationKey: ['article', { id: postId }, 'delete'],
     mutationFn: deleteArticle,
+  });
+};
+
+export const useCreateCommentMutation = (postId: string, page: number) => {
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ['article', { id: postId }],
+    mutationFn: createComment,
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ['articles', { page: page }] });
+      await queryClient.invalidateQueries({ queryKey: ['article', { id: postId }] });
+      await queryClient.refetchQueries({ queryKey: ['article', { id: postId }] });
+      await router.invalidate();
+    },
   });
 };
