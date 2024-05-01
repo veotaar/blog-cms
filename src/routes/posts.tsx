@@ -8,6 +8,7 @@ import buttonVariants from '@/components/ui/buttonVariants';
 import { cn } from '../lib/utils';
 import { Link } from '@tanstack/react-router';
 import { articlesQueryOptions } from '@/api/queryOptions';
+import { Plus } from 'lucide-react';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -50,13 +51,14 @@ function Posts() {
   }
 
   return (
-    <div className="mx-auto max-w-screen-lg overflow-hidden text-ellipsis whitespace-nowrap bg-background p-2">
+    <div className="mx-auto flex max-w-screen-md flex-col gap-4 overflow-hidden text-ellipsis whitespace-nowrap bg-background p-4">
       <Link
-        className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
+        className={cn(buttonVariants({ variant: 'default', size: 'default' }), 'flex gap-2 self-start')}
         to="/posts/new"
         search={{ page: 1 }}
       >
-        New Article
+        <Plus className="h-4 w-4" />
+        <span>New Article</span>
       </Link>
       <ArticleList data={loaderData.data} />
       <Paginator currentPage={page as number} totalPages={loaderData.data.totalPages} pagesAroundCurrent={2} />

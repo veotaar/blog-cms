@@ -25,12 +25,14 @@ const DeleteCommentButton = ({ deleteFn, commentAuthor, commentContent }: Delete
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the comment.
           </AlertDialogDescription>
           <AlertDialogDescription>Comment by: {commentAuthor}</AlertDialogDescription>
-          <AlertDialogDescription>Comment: {commentContent}</AlertDialogDescription>
+          <AlertDialogDescription className="max-w-sm overflow-hidden text-ellipsis whitespace-nowrap">
+            {commentContent}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

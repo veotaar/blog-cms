@@ -27,7 +27,7 @@ const Paginator = ({ currentPage, totalPages, pagesAroundCurrent }: PaginatorPro
             <div
               className={cn(
                 buttonVariants({ variant: 'ghost', size: 'default' }),
-                'hover: pointer-events-none gap-1 pl-2.5 text-muted-foreground hover:bg-transparent hover:text-muted-foreground',
+                'pointer-events-none gap-1 pl-2.5 text-muted-foreground hover:bg-transparent hover:text-muted-foreground',
               )}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -101,7 +101,7 @@ const Paginator = ({ currentPage, totalPages, pagesAroundCurrent }: PaginatorPro
             <div
               className={cn(
                 buttonVariants({ variant: 'ghost', size: 'default' }),
-                'gap-1 pl-2.5 text-muted-foreground hover:bg-transparent hover:text-muted-foreground',
+                'pointer-events-none gap-1 pl-2.5 text-muted-foreground hover:bg-transparent hover:text-muted-foreground',
               )}
             >
               <span>Next</span>

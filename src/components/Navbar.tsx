@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
     <nav className={cn('mb-2 bg-accent p-2 text-foreground')}>
       <div className={cn('mx-auto flex max-w-screen-lg items-center justify-center gap-4 px-2')}>
         <Link to="/" className="mr-auto [&.active]:font-bold">
-          Home
+          Blog CMS
         </Link>
         {isAuthenticated ? (
           <div className={cn('flex gap-4')}>

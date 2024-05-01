@@ -47,10 +47,16 @@ export const useUpdateArticleMutation = (postId: string) => {
   });
 };
 
-export const useDeleteArticleMutation = (postId: string) => {
+export const useDeleteArticleMutation = (postId: string, page: number) => {
+  const router = useRouter();
   return useMutation({
     mutationKey: ['article', { id: postId }, 'delete'],
     mutationFn: deleteArticle,
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ['articles', { page: page }] });
+      await queryClient.invalidateQueries({ queryKey: ['article', { id: postId }] });
+      await router.invalidate();
+    },
   });
 };
 

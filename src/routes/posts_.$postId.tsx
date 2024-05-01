@@ -15,6 +15,7 @@ import { useDeleteArticleMutation } from '@/api/queryOptions';
 import { useNavigate } from '@tanstack/react-router';
 import CommentForm from '@/components/CommentForm';
 import Comment from '@/components/Comment';
+import { format } from 'date-fns';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -45,33 +46,27 @@ function Post() {
   const loaderData = useLoaderData({ from: '/posts/$postId' });
   const navigate = useNavigate({ from: '/posts/$postId' });
 
-  const queryClient = Route.useRouteContext({ select: (context) => context.queryClient });
+  // const queryClient = Route.useRouteContext({ select: (context) => context.queryClient });
 
-  const { title, author, content, commentCount, comments } = loaderData.data.post;
+  const { title, author, content, commentCount, comments, createdAt, updatedAt } = loaderData.data.post;
 
   const { postId } = Route.useParams();
 
-  const deleteArticleMutation = useDeleteArticleMutation(postId);
+  const deleteArticleMutation = useDeleteArticleMutation(postId, page);
 
   const handleDelete = async () => {
-    try {
-      await deleteArticleMutation.mutateAsync(
-        {
-          postId: postId,
-          token: token as string,
+    deleteArticleMutation.mutate(
+      {
+        postId: postId,
+        token: token as string,
+      },
+      {
+        onSuccess: () => {
+          navigate({ to: '/posts', search: { page: 1 } });
+          toast('article has been deleted');
         },
-        {
-          onSuccess: () => {
-            queryClient.clear();
-          },
-        },
-      );
-
-      navigate({ to: '/' });
-      toast('article has been deleted');
-    } catch {
-      toast('there was a problem');
-    }
+      },
+    );
   };
 
   if (!isAuthenticated) {
@@ -87,58 +82,77 @@ function Post() {
   }
 
   return (
-    <>
-      <div className="mx-auto max-w-screen-lg overflow-hidden text-ellipsis bg-background p-2">
-        <div className="flex items-center justify-between">
-          <Link
-            className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
-            to="/posts"
-            search={{ page: page }}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            <span>Go back to posts</span>
-          </Link>
-          <DeleteButton deleteFn={handleDelete} />
-          <Link
-            className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
-            to="/posts/$postId/edit"
-            search={{ page: page }}
-            params={{ postId: postId }}
-          >
-            <span>Edit</span>
-            <Edit />
-          </Link>
+    <div className="mx-auto flex max-w-screen-lg flex-col gap-4">
+      <div className="flex items-center">
+        <Link
+          className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
+          to="/posts"
+          search={{ page: page }}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span>Go back to posts</span>
+        </Link>
+        <DeleteButton deleteFn={handleDelete} />
+        <Link
+          className={cn(buttonVariants({ variant: 'ghost', size: 'default' }), 'gap-1 pl-2.5')}
+          to="/posts/$postId/edit"
+          search={{ page: page }}
+          params={{ postId: postId }}
+        >
+          <span>Edit Article</span>
+          <Edit />
+        </Link>
+      </div>
+      <div className="mx-auto flex w-full gap-6 px-6 py-4 text-muted-foreground">
+        <div>
+          <p>Article Title:</p>
+          <p>Author:</p>
+          <p>Created:</p>
+          <p>Last modified:</p>
         </div>
-        <h1>title {title}</h1>
-        <p>written by {author ? author.username : 'deleted user'}</p>
-        <Markdown remarkPlugins={[remarkGfm]} className="prose dark:prose-invert">
-          {content}
-        </Markdown>
+        <div>
+          <p className="italic">{title}</p>
+          <p>{author ? author.username : 'deleted user'}</p>
+          <p>{format(createdAt, 'yyyy/MM/dd, kk:mm:ss, zzzz')}</p>
+          <p>{format(updatedAt, 'yyyy/MM/dd, kk:mm:ss, zzzz')}</p>
+        </div>
+      </div>
+      <div className="max-w-screen-lg overflow-hidden text-ellipsis rounded border bg-card p-2 py-8">
+        <div className="flex justify-center py-8">
+          <Markdown remarkPlugins={[remarkGfm]} className="prose w-full dark:prose-invert">
+            {content}
+          </Markdown>
+        </div>
       </div>
       <div
         className={cn(
-          'mx-auto flex max-w-screen-lg flex-col gap-2 overflow-hidden text-ellipsis border bg-background p-2',
+          'flex flex-col items-center gap-4 overflow-hidden text-ellipsis rounded border bg-background p-2 pb-8',
         )}
       >
+        <p className="text-lg">Join the discussion</p>
         <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
       </div>
-      <div
-        className={cn(
-          'mx-auto flex max-w-screen-lg flex-col gap-2 overflow-hidden text-ellipsis border bg-background p-2',
-        )}
-      >
-        {commentCount > 0
-          ? comments.map((comment) => (
-              <Comment
-                id={comment.id}
-                author={comment.author}
-                content={comment.content}
-                postId={comment.parent}
-                page={page}
-              />
-            ))
-          : null}
+      <div className="mb-8 flex flex-col items-center gap-2 p-2">
+        <p className="text-lg">Comments</p>
+        <div
+          className={cn(
+            'flex w-full flex-col-reverse gap-2 overflow-hidden text-ellipsis bg-background p-2 pb-8 md:w-3/5',
+          )}
+        >
+          {commentCount > 0
+            ? comments.map((comment) => (
+                <Comment
+                  id={comment.id}
+                  author={comment.author}
+                  content={comment.content}
+                  postId={comment.parent}
+                  page={page}
+                  createdAt={comment.createdAt}
+                />
+              ))
+            : null}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
