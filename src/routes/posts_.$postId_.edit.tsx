@@ -65,13 +65,18 @@ function EditComponent() {
   }, []);
 
   const handleUpdate = async () => {
-    await updateArticleMutation.mutateAsync({
-      title: postTitle,
-      published: isPublished,
-      token: token as string,
-      content: markdownContent,
-      postId: postId,
-    });
+    await updateArticleMutation.mutateAsync(
+      {
+        title: postTitle,
+        published: isPublished,
+        token: token as string,
+        content: markdownContent,
+        postId: postId,
+      },
+      {
+        onSuccess: () => setUnsaved(false),
+      },
+    );
     await queryClient.refetchQueries({ queryKey: ['articles', { page: page }] });
   };
 
@@ -104,15 +109,17 @@ function EditComponent() {
 
   return (
     <>
-      <div className="flex gap-2">
+      <div className="mx-auto flex max-w-screen-lg items-center gap-2">
+        <p>Title:</p>
         <Input value={postTitle} onChange={(e) => handleTitleChange(e.target.value)} />
+        <p>Publish:</p>
         <Switch checked={isPublished} onCheckedChange={(checked) => handlePublishedChange(checked)} />
         <Button disabled={updateArticleMutation.isPending || !unsaved} type="button" onClick={handleUpdate}>
           Save Changes {unsaved ? '*' : ''}
         </Button>
       </div>
-      <div className="flex min-w-full justify-center gap-2">
-        <div className="w-[48vw] border">
+      <div className="mt-2 flex min-w-full justify-center gap-2">
+        <div className="w-[48vw] rounded border">
           <CodeMirror
             ref={refs}
             value={markdownContent}
@@ -136,7 +143,7 @@ function EditComponent() {
             onChange={(val, _view) => handleMarkdownChange(val)}
           />
         </div>
-        <div className="mx-auto w-[48vw] border p-4">
+        <div className="w-[48vw] rounded border p-4 px-8">
           <Markdown rehypePlugins={[rehypeHighlight]} remarkPlugins={[remarkGfm]} className="prose dark:prose-invert">
             {markdownContent}
           </Markdown>

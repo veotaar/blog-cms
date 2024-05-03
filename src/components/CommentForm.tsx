@@ -25,7 +25,7 @@ const FormSchema = z.object({
   //   .max(400, {
   //     message: 'Comment must not be longer than 400 characters.',
   //   }),
-  comment: wordCountValidator(2, 30),
+  comment: wordCountValidator(1, 30),
 });
 
 type CommentFormProps = {

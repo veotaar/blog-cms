@@ -15,6 +15,7 @@ import { useDeleteArticleMutation } from '@/api/queryOptions';
 import { useNavigate } from '@tanstack/react-router';
 import CommentForm from '@/components/CommentForm';
 import Comment from '@/components/Comment';
+import { CodeBlock } from '@/components/CodeBlock';
 import { format } from 'date-fns';
 
 const postsSearchSchema = z.object({
@@ -53,6 +54,11 @@ function Post() {
   const { postId } = Route.useParams();
 
   const deleteArticleMutation = useDeleteArticleMutation(postId, page);
+
+  const markdownComponentOptions = {
+    code: CodeBlock,
+    pre: ({ ...props }) => <div className="not-prose">{props.children}</div>,
+  };
 
   const handleDelete = async () => {
     deleteArticleMutation.mutate(
@@ -119,7 +125,11 @@ function Post() {
       </div>
       <div className="max-w-screen-lg overflow-hidden text-ellipsis rounded border bg-card p-2 py-8">
         <div className="flex justify-center py-8">
-          <Markdown remarkPlugins={[remarkGfm]} className="prose w-full dark:prose-invert">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            className="prose w-full max-w-screen-sm dark:prose-invert"
+            components={markdownComponentOptions}
+          >
             {content}
           </Markdown>
         </div>
@@ -133,7 +143,7 @@ function Post() {
         <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
       </div>
       <div className="mb-8 flex flex-col items-center gap-2 p-2">
-        <p className="text-lg">Comments</p>
+        <p className="text-lg">{commentCount > 0 ? 'Comments' : 'There are no comments yet'}</p>
         <div
           className={cn(
             'flex w-full flex-col-reverse gap-2 overflow-hidden text-ellipsis bg-background p-2 pb-8 md:w-3/5',
