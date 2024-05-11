@@ -10,10 +10,10 @@ COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
+FROM steebchen/nginx-spa:stable
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist/ /app
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx"]

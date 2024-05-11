@@ -18,10 +18,24 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className={cn('mb-2 bg-accent p-2 text-foreground')}>
-      <div className={cn('mx-auto flex max-w-screen-lg items-center justify-center gap-4 px-2')}>
-        <Link to="/" className="mr-auto [&.active]:font-bold">
+      <div className={cn('mx-auto flex max-w-screen-md items-center justify-center gap-6 px-2')}>
+        <Link
+          to="/"
+          className={cn('font-bold underline-offset-8 [&.active]:underline', { 'mr-auto': !isAuthenticated })}
+        >
           Blog CMS
         </Link>
+        {isAuthenticated ? (
+          <>
+            <Link to="/posts" search={{ page: 1 }} className=" underline-offset-8 [&.active]:underline">
+              Posts
+            </Link>
+            <Link to="/settings" className="mr-auto  underline-offset-8 [&.active]:underline">
+              Settings
+            </Link>
+          </>
+        ) : null}
+
         {isAuthenticated ? (
           <div className={cn('flex gap-4')}>
             <p>Welcome, {user}</p>

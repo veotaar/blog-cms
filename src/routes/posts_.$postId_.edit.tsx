@@ -2,21 +2,15 @@ import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
 import { useEffect, useState } from 'react';
-import CodeMirror, { ReactCodeMirrorRef, EditorView } from '@uiw/react-codemirror';
-import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
-import { languages } from '@codemirror/language-data';
-import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-import { useRef } from 'react';
+import CodeEditor from '@uiw/react-textarea-code-editor/nohighlight';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { defaultHighlightStyle, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
-import { tags } from '@lezer/highlight';
 import { articleQueryOptions } from '@/api/queryOptions';
 import { useUpdateArticleMutation } from '@/api/queryOptions';
 import { z } from 'zod';
+import { CodeBlock } from '@/components/CodeBlock';
 
 const postsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -35,8 +29,9 @@ export const Route = createFileRoute('/posts/$postId/edit')({
       });
     }
   },
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string)),
+  loader: async ({ params, context }) => {
+    return await context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string));
+  },
 });
 
 function EditComponent() {
@@ -44,7 +39,6 @@ function EditComponent() {
   const queryClient = Route.useRouteContext({ select: (context) => context.queryClient });
   const { page } = Route.useSearch();
 
-  const refs = useRef<ReactCodeMirrorRef>({});
   const loaderData = Route.useLoaderData();
   const { title, content, published } = loaderData.data.post;
 
@@ -56,6 +50,11 @@ function EditComponent() {
   const [unsaved, setUnsaved] = useState(false);
 
   const updateArticleMutation = useUpdateArticleMutation(postId);
+
+  const markdownComponentOptions = {
+    code: CodeBlock,
+    pre: ({ ...props }) => <div className="not-prose">{props.children}</div>,
+  };
 
   useEffect(() => {
     setMarkdownContent(content);
@@ -120,31 +119,25 @@ function EditComponent() {
       </div>
       <div className="mt-2 flex min-w-full justify-center gap-2">
         <div className="w-[48vw] rounded border">
-          <CodeMirror
-            ref={refs}
+          <CodeEditor
             value={markdownContent}
-            basicSetup={{
-              lineNumbers: false,
+            onChange={(e) => handleMarkdownChange(e.target.value)}
+            language="md"
+            padding={15}
+            style={{
+              fontFamily: 'ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace',
+              fontSize: 16,
+              backgroundColor: 'hsl(20 14.3% 4.1%)',
+              minHeight: '85dvh',
             }}
-            extensions={[
-              markdown({ base: markdownLanguage, codeLanguages: languages }),
-              EditorView.lineWrapping,
-              syntaxHighlighting(defaultHighlightStyle),
-              syntaxHighlighting(
-                HighlightStyle.define([
-                  { tag: tags.heading1, fontSize: '180%' },
-                  { tag: tags.heading2, fontSize: '140%' },
-                  { tag: tags.heading3, fontSize: '130%' },
-                ]),
-              ),
-            ]}
-            theme={vscodeDark}
-            minHeight="calc(100svh - 5rem)"
-            onChange={(val, _view) => handleMarkdownChange(val)}
           />
         </div>
         <div className="w-[48vw] rounded border p-4 px-8">
-          <Markdown rehypePlugins={[rehypeHighlight]} remarkPlugins={[remarkGfm]} className="prose dark:prose-invert">
+          <Markdown
+            remarkPlugins={[remarkGfm]}
+            className="prose max-w-screen-sm dark:prose-invert"
+            components={markdownComponentOptions}
+          >
             {markdownContent}
           </Markdown>
         </div>

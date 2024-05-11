@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useLoaderData } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
 import { Link } from '@tanstack/react-router';
 import Markdown from 'react-markdown';
@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { ChevronLeft, Edit } from 'lucide-react';
 // import { buttonVariants } from '@/components/ui/button';
 import buttonVariants from '@/components/ui/buttonVariants';
-import { articleQueryOptions } from '@/api/queryOptions';
+import { articleQueryOptions, commentsQueryOptions } from '@/api/queryOptions';
 import { z } from 'zod';
 import { cn } from '../lib/utils';
 import DeleteButton from '@/components/DeleteButton';
@@ -36,7 +36,11 @@ export const Route = createFileRoute('/posts/$postId')({
     }
   },
   loader: async ({ params, context }) => {
-    return await context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string));
+    // return await context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string));
+    return await Promise.all([
+      context.queryClient.ensureQueryData(articleQueryOptions(params.postId, context.auth.token as string)),
+      context.queryClient.ensureQueryData(commentsQueryOptions()),
+    ]);
   },
 });
 
@@ -44,12 +48,13 @@ function Post() {
   const { isAuthenticated, token } = useAuth();
   const { page } = Route.useSearch();
 
-  const loaderData = useLoaderData({ from: '/posts/$postId' });
+  const loaderData = Route.useLoaderData();
   const navigate = useNavigate({ from: '/posts/$postId' });
 
   // const queryClient = Route.useRouteContext({ select: (context) => context.queryClient });
 
-  const { title, author, content, commentCount, comments, createdAt, updatedAt } = loaderData.data.post;
+  const { title, author, content, commentCount, comments, createdAt, updatedAt } = loaderData[0].data.post;
+  const { allowComments } = loaderData[1].data;
 
   const { postId } = Route.useParams();
 
@@ -134,14 +139,20 @@ function Post() {
           </Markdown>
         </div>
       </div>
-      <div
-        className={cn(
-          'flex flex-col items-center gap-4 overflow-hidden text-ellipsis rounded border bg-background p-2 pb-8',
-        )}
-      >
-        <p className="text-lg">Join the discussion</p>
-        <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
-      </div>
+
+      {allowComments ? (
+        <div
+          className={cn(
+            'flex flex-col items-center gap-4 overflow-hidden text-ellipsis rounded border bg-background p-2 pb-8',
+          )}
+        >
+          <p className="text-lg">Join the discussion</p>
+          <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
+        </div>
+      ) : (
+        <p className="text-center text-lg">New comments are not allowed at this time.</p>
+      )}
+
       <div className="mb-8 flex flex-col items-center gap-2 p-2">
         <p className="text-lg">{commentCount > 0 ? 'Comments' : 'There are no comments yet'}</p>
         <div

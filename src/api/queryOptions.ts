@@ -6,9 +6,33 @@ import { updateArticle } from './updateArticle';
 import { deleteArticle } from './deleteArticle';
 import { createComment } from './createComment';
 import { deleteComment } from './deleteComment';
+import { getSignupStatus } from './getSignupStatus';
+import { getCommentStatus } from './getCommentStatus';
+import { getSettings, updateSettings } from './settings';
 import { useRouter } from '@tanstack/react-router';
 
 export const queryClient = new QueryClient();
+
+export const signupsQueryOptions = () => {
+  return queryOptions({
+    queryKey: ['settings', 'signup'],
+    queryFn: () => getSignupStatus(),
+  });
+};
+
+export const commentsQueryOptions = () => {
+  return queryOptions({
+    queryKey: ['settings', 'comment'],
+    queryFn: () => getCommentStatus(),
+  });
+};
+
+export const settingsQueryOptions = (token: string) => {
+  return queryOptions({
+    queryKey: ['settings', 'all'],
+    queryFn: () => getSettings(token),
+  });
+};
 
 export const articleQueryOptions = (postId: string, token: string) => {
   return queryOptions({
@@ -84,6 +108,29 @@ export const useDeleteCommentMutation = (postId: string, commentId: string, page
       await queryClient.invalidateQueries({ queryKey: ['article', { id: postId }] });
       await queryClient.refetchQueries({ queryKey: ['article', { id: postId }] });
       await router.invalidate();
+    },
+  });
+};
+
+export const useUpdateSettingsMutation = () => {
+  return useMutation({
+    mutationKey: ['settings', 'update'],
+    mutationFn: updateSettings,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+      queryClient.setQueryData(['settings', 'all'], data);
+      queryClient.setQueryData(['settings', 'signup'], {
+        status: 'success',
+        data: {
+          allowSignups: data.data.settings.allowSignups,
+        },
+      });
+      queryClient.setQueryData(['settings', 'comment'], {
+        status: 'success',
+        data: {
+          allowComments: data.data.settings.allowComments,
+        },
+      });
     },
   });
 };

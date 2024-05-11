@@ -1,38 +1,31 @@
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dracula as editorTheme } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { srcery as editorTheme } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import ts from 'react-syntax-highlighter/dist/cjs/languages/hljs/typescript';
 
-// export const CodeBlock = ({ children, className, node, ...rest }: SyntaxHighlighterProps) => {
-//   const match = /language-(\w+)/.exec(className || '');
+SyntaxHighlighter.registerLanguage('typescript', ts);
+
+// export const CodeBlock = ({ ...props }) => {
+//   const match = /language-(\w+)/.exec(props.className || '');
+
 //   return match ? (
 //     <SyntaxHighlighter
-//       {...rest}
-//       PreTag="div"
-//       children={String(children).replace(/\n$/, '')}
-//       language={match[1]}
-//       wrapLines={true}
+//       language={props.className?.replace(/(?:lang(?:uage)?-)/, '')}
 //       style={editorTheme}
+//       wrapLines={true}
 //       className="not-prose"
-//     />
+//       PreTag="div"
+//     >
+//       {props.children}
+//     </SyntaxHighlighter>
 //   ) : (
-//     <code {...rest} className={className}>
-//       {children}
-//     </code>
+//     <code className={props.className}>{props.children}</code>
 //   );
 // };
 
 export const CodeBlock = ({ ...props }) => {
-  const match = /language-(\w+)/.exec(props.className || '');
-  return match ? (
-    <SyntaxHighlighter
-      language={props.className?.replace(/(?:lang(?:uage)?-)/, '')}
-      style={editorTheme}
-      wrapLines={true}
-      className="not-prose"
-      PreTag="div"
-    >
+  return (
+    <SyntaxHighlighter language="typescript" style={editorTheme} wrapLines={true} className="not-prose" PreTag="div">
       {props.children}
     </SyntaxHighlighter>
-  ) : (
-    <code className={props.className}>{props.children}</code>
   );
 };

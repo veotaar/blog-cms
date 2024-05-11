@@ -12,8 +12,14 @@ import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from '@/lib/auth';
 
 const formSchema = z.object({
-  username: z.string().min(4).max(32),
-  password: z.string().min(8).max(64),
+  username: z
+    .string()
+    .min(4, { message: 'Username must be between 4 and 32 characters.' })
+    .max(32, { message: 'Username must be between 4 and 32 characters.' }),
+  password: z
+    .string()
+    .min(8, { message: 'Password must be between 8 and 64 characters.' })
+    .max(64, { message: 'Password must be between 8 and 64 characters.' }),
 });
 
 const LoginForm = () => {

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useLoaderData } from '@tanstack/react-router';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 import { useAuth } from '../lib/auth';
 import Paginator from '@/components/Paginator';
 import { z } from 'zod';
@@ -28,15 +28,15 @@ export const Route = createFileRoute('/posts')({
     }
   },
   loaderDeps: ({ search: { page } }) => ({ page }),
-  loader: ({ deps: { page }, context }) =>
-    context.queryClient.ensureQueryData(articlesQueryOptions(page, context.auth.token as string)),
+  loader: async ({ deps: { page }, context }) =>
+    await context.queryClient.ensureQueryData(articlesQueryOptions(page, context.auth.token as string)),
 });
 
 function Posts() {
   const { isAuthenticated } = useAuth();
   const { page } = Route.useSearch();
 
-  const loaderData = useLoaderData({ from: '/posts' });
+  const loaderData = Route.useLoaderData();
 
   if (!isAuthenticated) {
     return (
