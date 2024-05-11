@@ -24,8 +24,6 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
-
 deploy.tar
 
 captain-definition
