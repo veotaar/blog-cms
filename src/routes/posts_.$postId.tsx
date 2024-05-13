@@ -163,6 +163,7 @@ function Post() {
           {commentCount > 0
             ? comments.map((comment) => (
                 <Comment
+                  key={comment.id}
                   id={comment.id}
                   author={comment.author}
                   content={comment.content}
