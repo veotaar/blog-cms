@@ -147,7 +147,7 @@ function Post() {
           )}
         >
           <p className="text-lg">Join the discussion</p>
-          <CommentForm postId={postId} page={page} disabled={commentCount >= 20} />
+          <CommentForm postId={postId} page={page} disabled={commentCount >= 100} />
         </div>
       ) : (
         <p className="text-center text-lg">New comments are not allowed at this time.</p>
